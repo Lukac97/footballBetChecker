@@ -2,8 +2,10 @@
 Tool used for checking result of football match betting tip/combination.
 # How to use
 Run football_bet_checker.py script with 2 arguments:
-1. Link to footystats.com match screen (ex. https://footystats.org/international/serbia-national-team-vs-cameroon-national-team-h2h-stats#2315637)
-2. String containing betting combinations to be checked, separated by semicolons (ex. 1;g3+;x-1)
+1. Link to footystats.com match screen (ex. https://footystats.org/international/serbia-national-team-vs-cameroon-national-team-h2h-stats#2315637)  
+2. String containing betting combinations to be checked, separated by semicolons (ex. 1;g3+;x-1)  
+  
+In case arguments are not given to the script, the same information will be asked from user at the start of the script.
 # Supported combinations
 1, X, 2 - match outcome.  
 P1, P2, PX, 2P1, 2P2, 2PX - halftime outcome.  
