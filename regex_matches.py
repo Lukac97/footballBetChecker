@@ -1,4 +1,5 @@
 class ClsCombinationRegexes:
+    """Class containing regexes for combinations."""
 
     R_OUTCOME = r"(2P|P)?(1|2|X)(1|2|X)?"
     R_GOALS = r"(P1|P2)?(D|G)?g(?:(\d+)-(\d+)|(\d+)\+)"

@@ -1,78 +1,63 @@
 import sys
 
-from selenium import webdriver
-from bs4 import BeautifulSoup
-import pandas as pd
-
 from combination_rules import ClsCombinationChecker
-from match_details import ClsResult, ClsMatchDetails
+from match_parser import ClsMatchParser
 
 
-def fct_unpack_result_from_string(str_result):
-    lst_split_result = str_result.text.strip("()").split("-")
-    int_host_v = int(lst_split_result[0])
-    int_guest_v = int(lst_split_result[1])
+def fct_take_user_input():
+    """
+    Take input from user, in case they are not given as arguments.
 
-    return ClsResult(int_host_v, int_guest_v)
+    Returns
+    -------
+        Link to match and combinations as string.
 
+    """
+    str_link = ""
+    str_combinations = ""
 
-def fct_extract_main_stats(obj_main_stats):
-    obj_match_details = ClsMatchDetails()
+    while "footystats.org" not in str_link:
+        print("Please enter a footystats.org link to match: ")
+        str_link = input()
 
-    lst_p = obj_main_stats.findChildren("p", recursive=False)
+    while str_combinations == "":
+        print("Please enter combinations separated by a semicolon (;): ")
+        str_combinations = input()
 
-    obj_match_details.obj_end_goals = \
-        fct_unpack_result_from_string(lst_p[0])
-    obj_match_details.obj_first_half_goals = \
-        fct_unpack_result_from_string(lst_p[2])
-
-    obj_match_details.obj_second_half_goals = ClsResult(
-        obj_match_details.obj_end_goals.int_host_v
-        - obj_match_details.obj_first_half_goals.int_host_v,
-        obj_match_details.obj_end_goals.int_guest_v
-        - obj_match_details.obj_first_half_goals.int_guest_v
-    )
-
-    return obj_match_details
+    return str_link, str_combinations
 
 
-def fct_get_stat_divs():
-    driver = webdriver.Firefox()
+def fct_handle_inputs():
+    """
+    Handle user inputs, through arguments or through menu.
 
-    if len(sys.argv) <= 1:
-        print("Please use link from footystats.org to a specific match "
-              "as first argument!")
-        sys.exit()
+    Returns
+    -------
+        Match link and combinations.
 
-    driver.get(sys.argv[1])
-    content = driver.page_source
-    driver.close()
+    """
+    if len(sys.argv) >= 3:
+        return sys.argv[1], sys.argv[2]
 
-    soup = BeautifulSoup(content, features="html.parser")
-    obj_main = soup.find_all("main")[0]
-    obj_section = obj_main.findChildren(
-        "section", class_="ft-data", recursive=False)[0]
-
-    obj_div_row = obj_section.findChildren(
-        "div", class_="row", recursive=False)[0]
-
-    return obj_div_row.findChildren(
-        "div", recursive=False)
+    return fct_take_user_input()
 
 
-if __name__ == '__main__':
-    obj_main_stats, obj_secondary_stats = fct_get_stat_divs()
+def fct_football_bet_checker():
+    """Check betting combinations on a football match."""
+    str_match_link, str_combinations = fct_handle_inputs()
 
-    obj_match_details = fct_extract_main_stats(obj_main_stats)
-
-    if len(sys.argv) <= 2:
-        print("No combinations were given.")
-        sys.exit()
+    obj_match_details = ClsMatchParser(
+        str_match_link
+    ).mtd_parse_match_details()
 
     dct_res = ClsCombinationChecker(
-        obj_match_details, sys.argv[2].split(";")
+        obj_match_details, str_combinations.split(";")
     ).mtd_check_all_combinations()
 
     print("COMBINATION RESULTS: ")
     for str_comb, bol_res in dct_res.items():
         print(f"'{str_comb}': {bol_res}")
+
+
+if __name__ == '__main__':
+    fct_football_bet_checker()
